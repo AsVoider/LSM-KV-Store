@@ -11,3 +11,13 @@
   BATCH_PUT KEY k1 VALUE v1 KEY k2 VALUE v2...
   BATCH_GET KEYS k1 k2 k3...
 ```
+
+### run
+
+```C
+  mkdir build
+  cd build
+  cmake ..
+  make
+  ./main
+```
