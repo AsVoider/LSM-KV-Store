@@ -13,6 +13,9 @@
   BATCH_GET KEYS k1 k2 k3...
 ```
 
+- 03/30/2024 A simple memory allocator, like slab:
+  - for 32B, 64B, 128B, 256B, 512B, 1024B, 4K, 2M.
+
 ### run
 
 ```C
