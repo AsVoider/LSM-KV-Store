@@ -1,10 +1,12 @@
 #include "mem_pool.h"
+#include <cmath>
 
 mem_allocator::mem_allocator() : mem_usage(0) {
     mem_pool.reserve(8);
     for (auto i = 0; i < 8; i++) {
         mem_pool.emplace_back(std::vector<block_ptr>());
     }
+    printf("init success\n");
 }
 
 mem_allocator::~mem_allocator() {
@@ -64,6 +66,8 @@ auto mem_allocator::allocate_newblock(block_type type) -> bool {
 
     block_ptr new_ptr(type, free_block_num, blk_ptr);
     mem_pool[type].emplace_back(new_ptr);
+    mem_usage.fetch_add((type > block_type::TOTAL_PAGE ? large_page_size : page_size) 
+        + sizeof(block_ptr), std::memory_order_relaxed);
     return true;
 }
 
@@ -72,15 +76,20 @@ auto mem_allocator::allocate_in_exist_page(block_type type) -> char *{
         return nullptr;
     }
 
-    auto &back_page = mem_pool[type].back();
-
-    if (back_page.free_block_num == 0) {
+    if (mem_pool[type].size() == 0) {
         return nullptr;
     }
 
+    auto &back_page = mem_pool[type].back();
+    
+    if (back_page.free_block_num == 0) {
+        return nullptr;
+    }
+    printf("here??\n");
     back_page.free_block_num--;
     auto return_ptr = back_page.now_ptr;
-    back_page.now_ptr += (type + 1) * 32;
+    printf("allocate is %d\n", 32 * static_cast<uint32_t>(pow(2, type)));
+    back_page.now_ptr += 32 * static_cast<uint32_t>(pow(2, type));
     return return_ptr;
 }
 
@@ -119,7 +128,8 @@ auto mem_allocator::Allocate(uint32_t size) -> char * {
     } else {
         type = block_type::SIZE_32;
     }
-
+    
+    printf("into exit page\n");
     auto return_ptr = allocate_in_exist_page(type);
     if (return_ptr == nullptr) {
         if (allocate_newblock(type) == false) {

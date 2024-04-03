@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iostream>
 
-enum operation{
+enum class operation{
     PUT,
     GET,
     DEL,
