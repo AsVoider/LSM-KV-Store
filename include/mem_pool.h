@@ -1,6 +1,7 @@
 #include <atomic>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 constexpr uint32_t B32 = 32;
 constexpr uint32_t B64 = 64;
@@ -47,16 +48,17 @@ struct block_ptr
 
 
 
-class mem_allocator
+class Mem_Allocator
 {
 public:
-    mem_allocator();
-    mem_allocator& operator=(const mem_allocator &) = delete;
-    mem_allocator(const mem_allocator &) = delete;
-    ~mem_allocator();
+    Mem_Allocator();
+    Mem_Allocator& operator=(const Mem_Allocator &) = delete;
+    Mem_Allocator(const Mem_Allocator &) = delete;
+    ~Mem_Allocator();
 
     auto Allocate(uint32_t) -> char *;
-    auto mem_used() const -> uint32_t;
+    auto Mem_Used() const -> uint32_t;
+    static auto GetInstance() -> std::shared_ptr<Mem_Allocator> const;
 
 private:
     std::vector<std::vector<block_ptr>> mem_pool;

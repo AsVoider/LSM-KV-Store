@@ -1,7 +1,7 @@
 #include "mem_pool.h"
 #include <cmath>
 
-mem_allocator::mem_allocator() : mem_usage(0) {
+Mem_Allocator::Mem_Allocator() : mem_usage(0) {
     mem_pool.reserve(8);
     for (auto i = 0; i < 8; i++) {
         mem_pool.emplace_back(std::vector<block_ptr>());
@@ -9,8 +9,8 @@ mem_allocator::mem_allocator() : mem_usage(0) {
     printf("init success\n");
 }
 
-mem_allocator::~mem_allocator() {
-    std::cout << "~mem_allocator now" << std::endl;
+Mem_Allocator::~Mem_Allocator() {
+    std::cout << "~Mem_Allocator now" << std::endl;
     for (auto &vec : mem_pool) {
         for (auto &blk_ptr : vec) {
             delete[] blk_ptr.this_ptr;
@@ -20,11 +20,11 @@ mem_allocator::~mem_allocator() {
     mem_pool.clear();
 }
 
-auto mem_allocator::mem_used() const -> uint32_t {
+auto Mem_Allocator::Mem_Used() const -> uint32_t {
     return this->mem_usage.load(std::memory_order_relaxed);
 }
 
-auto mem_allocator::allocate_newblock(block_type type) -> bool {
+auto Mem_Allocator::allocate_newblock(block_type type) -> bool {
     char *blk_ptr = nullptr;
     uint32_t free_block_num;
     switch (type) {
@@ -71,7 +71,7 @@ auto mem_allocator::allocate_newblock(block_type type) -> bool {
     return true;
 }
 
-auto mem_allocator::allocate_in_exist_page(block_type type) -> char *{
+auto Mem_Allocator::allocate_in_exist_page(block_type type) -> char *{
     if (type >= block_type::TOTAL_PAGE) {
         return nullptr;
     }
@@ -93,7 +93,7 @@ auto mem_allocator::allocate_in_exist_page(block_type type) -> char *{
     return return_ptr;
 }
 
-auto mem_allocator::Allocate(uint32_t size) -> char * {
+auto Mem_Allocator::Allocate(uint32_t size) -> char * {
     if (size > large_page_size) {
         return nullptr;
     }
@@ -140,4 +140,8 @@ auto mem_allocator::Allocate(uint32_t size) -> char * {
     } else {
         return return_ptr;
     }
+}
+
+auto Mem_Allocator::GetInstance() -> std::shared_ptr<Mem_Allocator> const {
+    return std::make_shared<Mem_Allocator>();
 }

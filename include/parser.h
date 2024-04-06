@@ -5,7 +5,8 @@
 #include <sstream>
 #include <iostream>
 
-enum class operation{
+enum class operation 
+{
     PUT,
     GET,
     DEL,
@@ -16,7 +17,8 @@ enum class operation{
 };
 
 template<typename K, typename V>
-class Ops {
+class Ops 
+{
 public:
     operation op;
     std::vector<std::pair<K, V>> vecs;
