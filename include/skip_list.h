@@ -5,39 +5,37 @@
 #include "mem_pool.h"
 #include "random.h"
 
-template<typename Key, typename Value>
-struct Node;
-
-template<typename Key, typename Value, class Comparator>
+template<typename KEY, typename VALUE, class Comparator>
 class SkipList;
 
-template<typename Key, typename Value, class Comparator>
+template<typename KEY, typename VALUE, class Comparator>
 class Iterator;
 
-template<typename Key, typename Value>
-struct Node{
-    Key const key;
-    Value const Value;
-    std::atomic<Node*> next[1];
+template<typename KEY, typename VALUE>
+struct Node
+{
+    explicit Node(const KEY& k, const VALUE& v) : key(k), value(v) {};
 
-    explicit Node(const Key& k, const Value& v) : Key(k), Value(v) {};
+    KEY const key;
+    VALUE const value;
+    std::atomic<Node*> next[1];
 
     auto Next(int n) -> Node * {
         return next[n].load(std::memory_order_acquire);
     }
 
-    auto SetNext(int n, Node* x) -> Node * {
+    auto SetNext(int n, Node* x) -> void {
         next[n].store(x, std::memory_order_release);
     }
 
     auto NoBarrier_Next(int n) -> Node * {
         assert(n >= 0);
-        return next_[n].load(std::memory_order_relaxed);
+        return next[n].load(std::memory_order_relaxed);
     }
 
     auto NoBarrier_SetNext(int n, Node* x) -> void {
         assert(n >= 0);
-        next_[n].store(x, std::memory_order_relaxed);
+        next[n].store(x, std::memory_order_relaxed);
     }
 };
 
@@ -59,7 +57,7 @@ private:
     Comparator const comparator;
     std::shared_ptr<Mem_Allocator> allocator;
     std::atomic<int> max_height;
-    Node *const head;
+    Node<KEY, VALUE> *const head;
     
     auto getMaxHeight() -> int const;
     auto NewNode(const KEY& k, const VALUE& v, int height) -> Node<KEY, VALUE> *;
@@ -72,12 +70,12 @@ private:
 };
 
 template<typename KEY, typename VALUE, class Comparator>
-SkipList<KEY, VALUE, Comparator>::SkipList(Comparator cmp, std::shared_ptr<Mem_Allocator> mem) {
-    comparator = cmp;
+SkipList<KEY, VALUE, Comparator>::SkipList(Comparator cmp, std::shared_ptr<Mem_Allocator> mem) : 
+    rnd(0xdeadbeef), 
+    comparator(cmp),
+    head(NewNode(0, 0, maxHeight)) {
     allocator = std::move(mem);
-    head = NewNode(0, 0, maxHeight);
     max_height = 1;
-    rand = Random(0xdeadbeaf);
     for (auto i = 0; i < maxHeight; i++) {
         head->SetNext(i, nullptr);
     }
@@ -132,11 +130,11 @@ template<typename KEY, typename VALUE, class Comparator>
 auto SkipList<KEY, VALUE, Comparator>::RandomHeight() -> int {
     static const uint32_t kb = 4;
     auto height(1);
-    while (height < kMaxHeight && rnd_.OneIn(kBranching)) {
+    while (height < maxHeight && rnd.OneIn(kb)) {
         height++;
     }
     assert(height > 0);
-    assert(height <= kMaxHeight);
+    assert(height <= maxHeight);
     return height;
 }
 

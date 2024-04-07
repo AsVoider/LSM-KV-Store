@@ -5,7 +5,7 @@
 class Comparator 
 {
  public:
-  virtual ~Comparator();
+  virtual ~Comparator() = default;
 
   virtual auto Compare(const MyString& a, const MyString& b) -> int const = 0;
 
@@ -17,6 +17,8 @@ class MyComparator : public Comparator
 {
 public:
     MyComparator() = default;
+
+    ~MyComparator() override = default;
 
     auto Name() -> const char * const override;
 

@@ -1,1 +1,3 @@
-add_library(mem_pool mem_pool.cpp)
+aux_source_directory(. DIR_LIB_SRCS)
+
+add_library(mylib ${DIR_LIB_SRCS})

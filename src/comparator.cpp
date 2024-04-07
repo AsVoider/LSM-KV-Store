@@ -8,8 +8,9 @@ auto MyComparator::Compare(const MyString& a, const MyString& b) -> int const {
     return a.compare(b);
 }
 
-auto MyComparator::GetInstance() -> const std::shared_ptr<MyComparator> {
-    return std::shared_ptr<MyComparator>();
+static auto GetInstance() -> std::shared_ptr<MyComparator> const {
+    static auto instance = std::make_shared<MyComparator>();
+    return instance;
 }
 
 auto KeyComparator::operator()(const char *a, const char *b) -> int {

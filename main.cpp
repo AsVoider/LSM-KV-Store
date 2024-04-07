@@ -1,9 +1,10 @@
 #include <iostream>
-#include "parser.h"
-#include "mem_pool.h"
+#include "skip_list.h"
+#include "comparator.h"
 
 
 int main() {
+    using Table = SkipList<char *, char *, KeyComparator>;
     // std::string a = "PUT KEY 1 VALUE 2";
     // std::getline(std::cin, a);
     // for(auto chars : a) {
@@ -16,7 +17,7 @@ int main() {
     //     std::cout << it.first << " " << it.second << std::endl;
     // }
 
-    mem_allocator mem_test{};
+    Mem_Allocator mem_test{};
 
     for (auto i = 0; i <= page_size / B1024; i++) {
         auto ptr1 = mem_test.Allocate(B1024);
@@ -28,4 +29,8 @@ int main() {
     ptr[0] = 's';
     //printf("res is %lx res2 is %lx, res3 is %lx\n", res, res2, res3);
     printf("ptr is %lx",  reinterpret_cast<uint64_t>(ptr));
+    auto allocator = std::make_shared<Mem_Allocator>();
+    MyComparator myComparator{};
+    KeyComparator c{myComparator};
+    auto tb = Table::MakeInstance(c, allocator);
 }

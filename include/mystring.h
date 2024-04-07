@@ -18,7 +18,17 @@ public:
     decltype(auto) toString() const;
     decltype(auto) operator==(const MyString& rhs) const;
     decltype(auto) operator!=(const MyString& rhs) const;
-    inline int compare(const MyString& rhs) const;
+    inline int compare(const MyString& rhs) const {
+        auto len = str.size() < rhs.str.size() ? str.size() : rhs.str.size();
+        auto r = memcmp(str.data(), rhs.str.data(), len);
+        if (r == 0) {
+            if (str.size() < rhs.str.size())
+                r = -1;
+            else if (str.size() > rhs.str.size())
+                r = 1;
+        }
+        return r;
+    };
 
 private:
     std::string str;
