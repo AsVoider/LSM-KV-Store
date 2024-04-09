@@ -73,9 +73,10 @@ template<typename KEY, typename VALUE, class Comparator>
 SkipList<KEY, VALUE, Comparator>::SkipList(Comparator cmp, std::shared_ptr<Mem_Allocator> mem) : 
     rnd(0xdeadbeef), 
     comparator(cmp),
+    allocator(std::move(mem)),
     head(NewNode(0, 0, maxHeight)) {
-    allocator = std::move(mem);
     max_height = 1;
+    // printf("mem ptr is %lx", allocator.get());
     for (auto i = 0; i < maxHeight; i++) {
         head->SetNext(i, nullptr);
     }
@@ -83,7 +84,10 @@ SkipList<KEY, VALUE, Comparator>::SkipList(Comparator cmp, std::shared_ptr<Mem_A
 
 template<typename KEY, typename VALUE, class Comparator>
 auto SkipList<KEY, VALUE, Comparator>::MakeInstance(Comparator cmp, std::shared_ptr<Mem_Allocator> mem) -> std::shared_ptr<SkipList> const {
-    return std::make_shared<SkipList>(cmp, mem);
+    // printf("into make instance\n");
+    auto ptr = std::make_shared<SkipList>(cmp, mem);
+    // printf("mem ptr is %lx", ptr->allocator.get());
+    return ptr;
 }
 
 template<typename KEY, typename VALUE, class Comparator>
@@ -103,6 +107,7 @@ auto SkipList<KEY, VALUE, Comparator>::Insert(const KEY &key, const VALUE &value
         x->SetNext(i, prev[i]->Next(i));
         prev[i]->SetNext(i, x);
     }
+    printf("insert success\n");
 }
 
 template<typename KEY, typename VALUE, class Comparator>
@@ -140,12 +145,13 @@ auto SkipList<KEY, VALUE, Comparator>::RandomHeight() -> int {
 
 template<typename KEY, typename VALUE, class Comparator>
 auto SkipList<KEY, VALUE, Comparator>::Equal(const KEY& a, const KEY& b) -> bool const {
-    return (comparator(a, b) == 0);
+    printf("a is %s, b is %s\n", a, b);
+    return comparator.compare(a, b) == 0;
 }
 
 template<typename KEY, typename VALUE, class Comparator>
 auto SkipList<KEY, VALUE, Comparator>::KeyIsAfterNode(const KEY& key, Node<KEY, VALUE> *n) -> bool const {
-    return (n != nullptr) && (comparator(n->key, key) < 0);
+    return (n != nullptr) && (comparator.compare(n->key, key) < 0);
 }
 
 template<typename KEY, typename VALUE, class Comparator>

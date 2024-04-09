@@ -6,6 +6,9 @@ Mem_Allocator::Mem_Allocator() : mem_usage(0) {
     for (auto i = 0; i < 8; i++) {
         mem_pool.emplace_back(std::vector<block_ptr>());
     }
+    // for (auto i = 0; i < 8; i++) {
+    //     printf("mem_pool size is %d\n", mem_pool[i].size());
+    // }
     printf("init success\n");
 }
 
@@ -76,16 +79,20 @@ auto Mem_Allocator::allocate_in_exist_page(block_type type) -> char *{
         return nullptr;
     }
 
+    printf("type is %d\n", type);
+
     if (mem_pool[type].size() == 0) {
         return nullptr;
     }
+
+    // printf("size is %d\n", mem_pool[type].size());
 
     auto &back_page = mem_pool[type].back();
     
     if (back_page.free_block_num == 0) {
         return nullptr;
     }
-    printf("here??\n");
+    // printf("here??\n");
     back_page.free_block_num--;
     auto return_ptr = back_page.now_ptr;
     printf("allocate is %d\n", 32 * static_cast<uint32_t>(pow(2, type)));
