@@ -2,9 +2,21 @@
 #include "skip_list.h"
 #include "comparator.h"
 
+typedef SkipList<std::string, std::string, KeyComparator> Table;
+
+void ins(std::shared_ptr<Table> tb) {
+    char *key = "key";
+    char *value = "value";
+    auto k = std::string(key);
+    auto val = std::string(value) + std::to_string(1);
+    printf("addr is k: %lx, v: %lx\n", k.c_str(), val.c_str());
+    tb->Insert(k, val);
+    // auto k1 = std::string(key) + std::to_string(2);
+    // auto val1 = std::string(value) + std::to_string(2);
+    // tb->Insert(k1.c_str(), val1.c_str());
+}
 
 int main() {
-    typedef SkipList<const char *, const char *, KeyComparator> Table;
     // std::string a = "PUT KEY 1 VALUE 2";
     // std::getline(std::cin, a);
     // for(auto chars : a) {
@@ -36,13 +48,20 @@ int main() {
     printf("before make instance\n");
     auto tb = Table::MakeInstance(c, allocator);
     printf("make instance\n");
-    char *key = "key";
-    char *value = "value";
-    for (int i = 1; i < 100; i++) {
-        auto k = std::string(key) + std::to_string(i);
-        auto k2str = k.c_str();
-        printf("k is %s i is %d\n", k2str, i);
-        tb->Insert(k2str, value);
+    // char *key = "key";
+    // char *value = "value";
+    // for (int i = 1; i < 100; i++) {
+    //     auto k = std::string(key) + std::to_string(i);
+    //     auto val = std::string(value) + std::to_string(i);
+    //     // printf("k is %lx\n", k2str);
+    //     tb->Insert(k.c_str(), val.c_str());
+    // }
+    // auto k = std::string(key) + std::to_string(1);
+    // auto val = std::string(value) + std::to_string(1);
+    // tb->Insert(k.c_str(), val.c_str());
+    // tb->Insert(key, value);
+    ins(tb);
+    if (tb->Contains("key")) {
+        printf("Success Final\n");    
     }
-    tb->Insert(key, value);
 }

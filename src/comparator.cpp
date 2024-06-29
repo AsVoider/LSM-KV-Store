@@ -16,3 +16,7 @@ static auto GetInstance() -> std::shared_ptr<MyComparator> const {
 int KeyComparator::compare(const char *a, const char *b) const {
     return myComparator.Compare(MyString(a), MyString(b));
 }
+
+int KeyComparator::compare(const std::string &a, const std::string &b) const {
+    return myComparator.Compare(MyString(a), MyString(b));
+}

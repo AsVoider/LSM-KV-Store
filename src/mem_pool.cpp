@@ -9,7 +9,7 @@ Mem_Allocator::Mem_Allocator() : mem_usage(0) {
     // for (auto i = 0; i < 8; i++) {
     //     printf("mem_pool size is %d\n", mem_pool[i].size());
     // }
-    printf("init success\n");
+    // printf("init success\n");
 }
 
 Mem_Allocator::~Mem_Allocator() {
@@ -79,7 +79,7 @@ auto Mem_Allocator::allocate_in_exist_page(block_type type) -> char *{
         return nullptr;
     }
 
-    printf("type is %d\n", type);
+    // printf("type is %d\n", type);
 
     if (mem_pool[type].size() == 0) {
         return nullptr;
@@ -95,7 +95,7 @@ auto Mem_Allocator::allocate_in_exist_page(block_type type) -> char *{
     // printf("here??\n");
     back_page.free_block_num--;
     auto return_ptr = back_page.now_ptr;
-    printf("allocate is %d\n", 32 * static_cast<uint32_t>(pow(2, type)));
+    // printf("allocate is %d\n", 32 * static_cast<uint32_t>(pow(2, type)));
     back_page.now_ptr += 32 * static_cast<uint32_t>(pow(2, type));
     return return_ptr;
 }

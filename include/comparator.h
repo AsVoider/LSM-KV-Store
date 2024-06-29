@@ -31,8 +31,11 @@ class KeyComparator
 {
 public:
     MyComparator myComparator;
-    explicit KeyComparator(MyComparator myComparator) : myComparator(myComparator) {};
+    explicit KeyComparator(MyComparator myComparator) : myComparator(myComparator) {
+        printf("build heree\n");
+    };
     int compare(const char *a, const char *b) const;
+    int compare(const std::string &a, const std::string &b) const;
 };
 
 // namespace LSM

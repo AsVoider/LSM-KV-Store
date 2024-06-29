@@ -14,7 +14,7 @@ class Iterator;
 template<typename KEY, typename VALUE>
 struct Node
 {
-    explicit Node(const KEY& k, const VALUE& v) : key(k), value(v) {};
+    explicit Node(const KEY k, const VALUE v) : key(k), value(v) {};
 
     KEY const key;
     VALUE const value;
@@ -48,11 +48,11 @@ public:
     SkipList& operator=(const SkipList &) = delete;
     static auto MakeInstance(Comparator cmp, std::shared_ptr<Mem_Allocator> mem) -> std::shared_ptr<SkipList> const;
     
-    auto Insert(const KEY &key, const VALUE &value) -> void;
+    auto Insert(const KEY key, const VALUE value) -> void;
     auto Contains(const KEY &key) -> bool;
 
 private:
-    int maxHeight = 8;
+    int maxHeight = 4;
     Random rnd;
     Comparator const comparator;
     std::shared_ptr<Mem_Allocator> allocator;
@@ -60,7 +60,7 @@ private:
     Node<KEY, VALUE> *const head;
     
     auto getMaxHeight() -> int const;
-    auto NewNode(const KEY& k, const VALUE& v, int height) -> Node<KEY, VALUE> *;
+    auto NewNode(const KEY k, const VALUE v, int height) -> Node<KEY, VALUE> *;
     auto RandomHeight() -> int;
     auto Equal(const KEY& a, const KEY &b) -> bool const;
     auto KeyIsAfterNode(const KEY& key, Node<KEY, VALUE> *n) -> bool const;
@@ -74,7 +74,7 @@ SkipList<KEY, VALUE, Comparator>::SkipList(Comparator cmp, std::shared_ptr<Mem_A
     rnd(0xdeadbeef), 
     comparator(cmp),
     allocator(std::move(mem)),
-    head(NewNode(0, 0, maxHeight)) {
+    head(NewNode("", "", maxHeight)) {
     max_height = 1;
     // printf("mem ptr is %lx", allocator.get());
     for (auto i = 0; i < maxHeight; i++) {
@@ -84,18 +84,22 @@ SkipList<KEY, VALUE, Comparator>::SkipList(Comparator cmp, std::shared_ptr<Mem_A
 
 template<typename KEY, typename VALUE, class Comparator>
 auto SkipList<KEY, VALUE, Comparator>::MakeInstance(Comparator cmp, std::shared_ptr<Mem_Allocator> mem) -> std::shared_ptr<SkipList> const {
-    // printf("into make instance\n");
+    //printf("into make instance\n");
     auto ptr = std::make_shared<SkipList>(cmp, mem);
     // printf("mem ptr is %lx", ptr->allocator.get());
     return ptr;
 }
 
 template<typename KEY, typename VALUE, class Comparator>
-auto SkipList<KEY, VALUE, Comparator>::Insert(const KEY &key, const VALUE &value) -> void {
+auto SkipList<KEY, VALUE, Comparator>::Insert(const KEY key, const VALUE value) -> void {
+    // if (head->Next(0)) {
+    //     printf("At Insert key is %s addr is %lx\n", head->Next(0)->key, head->Next(0));
+    // }
     Node<KEY, VALUE> *prev[maxHeight];
     auto x = FindGreaterOrEqual(key, prev);
     assert(x == nullptr || !Equal(key, x->key));
     auto height = RandomHeight();
+    printf("max height is %d now height is %d\n", getMaxHeight(), height);
     if (height > getMaxHeight()) {
         for (auto i = getMaxHeight(); i < height; i++) {
             prev[i] = head;
@@ -104,10 +108,16 @@ auto SkipList<KEY, VALUE, Comparator>::Insert(const KEY &key, const VALUE &value
     }
     x = NewNode(key, value, height);
     for (auto i = 0; i < height; i++) {
-        x->SetNext(i, prev[i]->Next(i));
+        x->SetNext(i, prev[i]/*->Next(i)*/);
         prev[i]->SetNext(i, x);
     }
+    // for (auto i = 0; i < height; i++) {
+    //     //printf("x ky is %s, x.next is %lx\n", x->key, x->Next(i));
+    //     printf("head next is %lx, head next %d is %s, addr is %lx\n", static_cast<void *>(head->Next(i)), 
+    //         i, head->Next(i)->key, head->Next(i)->key);
+    // }
     printf("insert success\n");
+
 }
 
 template<typename KEY, typename VALUE, class Comparator>
@@ -126,7 +136,7 @@ auto SkipList<KEY, VALUE, Comparator>::getMaxHeight() -> int const {
 }
 
 template<typename KEY, typename VALUE, class Comparator>
-auto SkipList<KEY, VALUE, Comparator>::NewNode(const KEY& k, const VALUE& v, int height) -> Node<KEY, VALUE> * {
+auto SkipList<KEY, VALUE, Comparator>::NewNode(const KEY k, const VALUE v, int height) -> Node<KEY, VALUE> * {
     auto mem_ptr = allocator->Allocate(sizeof(Node<KEY, VALUE>) + sizeof(std::atomic<Node<KEY, VALUE> *>) * (height - 1));
     return new (mem_ptr) Node<KEY, VALUE>(k, v);
 }
@@ -145,12 +155,14 @@ auto SkipList<KEY, VALUE, Comparator>::RandomHeight() -> int {
 
 template<typename KEY, typename VALUE, class Comparator>
 auto SkipList<KEY, VALUE, Comparator>::Equal(const KEY& a, const KEY& b) -> bool const {
-    printf("a is %s, b is %s\n", a, b);
+    // printf("a is %s, b is %s\n", a, b);
     return comparator.compare(a, b) == 0;
 }
 
 template<typename KEY, typename VALUE, class Comparator>
 auto SkipList<KEY, VALUE, Comparator>::KeyIsAfterNode(const KEY& key, Node<KEY, VALUE> *n) -> bool const {
+    if (n)
+        std::cout << "key is " << key << "n.key is " << n->key << std::endl;
     return (n != nullptr) && (comparator.compare(n->key, key) < 0);
 }
 
@@ -158,15 +170,21 @@ template<typename KEY, typename VALUE, class Comparator>
 auto SkipList<KEY, VALUE, Comparator>::FindGreaterOrEqual(const KEY& key, Node<KEY, VALUE> **prev) -> Node<KEY, VALUE> * const {
     auto x = head;
     auto level(getMaxHeight() - 1);
+    //printf("head next key is %s\n", head->Next(level)->key);
     while (true) {
         auto next = x->Next(level);
+        if (head->Next(level))
+            printf("x . next key is %s, key addr is %lx, next is %d\n", next->key.c_str(), next->key.c_str(), level);
         if (KeyIsAfterNode(key, next)) {
+            printf("after a node\n");
             x = next;
         } else {
             if (prev != nullptr) {
+                printf("into here\n");
                 prev[level] = x;
             }
             if (level == 0) {
+                printf("return here\n");
                 return next;
             } else {
                 level--;
