@@ -4,16 +4,18 @@
 
 typedef SkipList<std::string, std::string, KeyComparator> Table;
 
+// SimpleTest For SkipList
 void ins(std::shared_ptr<Table> tb) {
-    char *key = "key";
-    char *value = "value";
+    const char *key = "key";
+    const char *value = "value";
+    auto k1 = std::string(key) + std::to_string(2);
+    auto val1 = std::string(value) + std::to_string(2);
+    tb->Insert(k1, val1);
+
     auto k = std::string(key);
     auto val = std::string(value) + std::to_string(1);
-    printf("addr is k: %lx, v: %lx\n", k.c_str(), val.c_str());
+    // printf("addr is k: %lx, v: %lx\n", k.c_str(), val.c_str());
     tb->Insert(k, val);
-    // auto k1 = std::string(key) + std::to_string(2);
-    // auto val1 = std::string(value) + std::to_string(2);
-    // tb->Insert(k1.c_str(), val1.c_str());
 }
 
 int main() {
@@ -42,7 +44,7 @@ int main() {
     //printf("res is %lx res2 is %lx, res3 is %lx\n", res, res2, res3);
     // printf("ptr is %lx",  reinterpret_cast<uint64_t>(ptr));
     auto allocator = std::make_shared<Mem_Allocator>();
-    printf("allocator is %lx\n", allocator.get());
+    printf("allocator is %p\n", static_cast<void *>(allocator.get()));
     MyComparator myComparator{};
     KeyComparator c{myComparator};
     printf("before make instance\n");

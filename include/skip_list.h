@@ -99,7 +99,7 @@ auto SkipList<KEY, VALUE, Comparator>::Insert(const KEY key, const VALUE value) 
     auto x = FindGreaterOrEqual(key, prev);
     assert(x == nullptr || !Equal(key, x->key));
     auto height = RandomHeight();
-    printf("max height is %d now height is %d\n", getMaxHeight(), height);
+    // printf("max height is %d now height is %d\n", getMaxHeight(), height);
     if (height > getMaxHeight()) {
         for (auto i = getMaxHeight(); i < height; i++) {
             prev[i] = head;
@@ -116,7 +116,7 @@ auto SkipList<KEY, VALUE, Comparator>::Insert(const KEY key, const VALUE value) 
     //     printf("head next is %lx, head next %d is %s, addr is %lx\n", static_cast<void *>(head->Next(i)), 
     //         i, head->Next(i)->key, head->Next(i)->key);
     // }
-    printf("insert success\n");
+    // printf("insert success\n");
 
 }
 
@@ -161,9 +161,9 @@ auto SkipList<KEY, VALUE, Comparator>::Equal(const KEY& a, const KEY& b) -> bool
 
 template<typename KEY, typename VALUE, class Comparator>
 auto SkipList<KEY, VALUE, Comparator>::KeyIsAfterNode(const KEY& key, Node<KEY, VALUE> *n) -> bool const {
-    if (n)
-        std::cout << "key is " << key << "n.key is " << n->key << std::endl;
-    return (n != nullptr) && (comparator.compare(n->key, key) < 0);
+    // if (n)
+    //     std::cout << "key is " << key << " n.key is " << n->key << std::endl;
+    return (n != nullptr) && (n != head) && (comparator.compare(n->key, key) < 0);
 }
 
 template<typename KEY, typename VALUE, class Comparator>
@@ -173,18 +173,18 @@ auto SkipList<KEY, VALUE, Comparator>::FindGreaterOrEqual(const KEY& key, Node<K
     //printf("head next key is %s\n", head->Next(level)->key);
     while (true) {
         auto next = x->Next(level);
-        if (head->Next(level))
-            printf("x . next key is %s, key addr is %lx, next is %d\n", next->key.c_str(), next->key.c_str(), level);
+        // if (head->Next(level))
+        //     printf("x . next key is %s, key addr is %lx, next is %d\n", next->key.c_str(), next->key.c_str(), level);
         if (KeyIsAfterNode(key, next)) {
-            printf("after a node\n");
+            // printf("after a node\n");
             x = next;
         } else {
             if (prev != nullptr) {
-                printf("into here\n");
+                // printf("into here\n");
                 prev[level] = x;
             }
             if (level == 0) {
-                printf("return here\n");
+                // printf("return here\n");
                 return next;
             } else {
                 level--;
